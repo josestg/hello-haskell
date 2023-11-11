@@ -1,4 +1,4 @@
-import Data.List (intersperse, nub, sort)
+import Data.List (intersperse, nub, singleton, sort)
 import Data.Map qualified as M
 
 doubleMe x = 2 * x
@@ -175,3 +175,92 @@ findByKeyFoldr xs key = g key xs
 
 fromList' :: (Ord k) => [(k, v)] -> M.Map k v
 fromList' = foldr (\(k, v) acc -> M.insert k v acc) M.empty
+
+data Point = Point Float Float deriving (Show)
+
+data Shape
+  = Circle Point Float
+  | Rectangle Point Point
+  deriving (Show)
+
+surface :: Shape -> Float
+surface s = case s of
+  (Circle _ r) -> pi * r ^ 2
+  (Rectangle (Point x1 y1) (Point x2 y2)) -> abs (x2 - x1) * abs (y2 - y1)
+
+-- Record
+
+data Person = Person
+  { firstName :: String,
+    lastName :: String,
+    age :: Int,
+    height :: Float
+  }
+  deriving (Eq, Show, Read)
+
+bob :: Person
+bob = Person {firstName = "Bob", lastName = "Alex", age = 25, height = 168}
+
+-- Type Parameters
+data Vector a = Vector a a a deriving (Show)
+
+vplus :: (Num t) => Vector t -> Vector t -> Vector t
+vplus (Vector x y z) (Vector p q r) = Vector (x * p) (y * z) (z * r)
+
+-- Recursive data structures
+
+data Tree a = EmptyTree | Node {v :: a, l :: Tree a, r :: Tree a} deriving (Show, Read, Eq)
+
+newTree :: a -> Tree a
+newTree x = Node x EmptyTree EmptyTree
+
+insertTree :: (Ord a) => a -> Tree a -> Tree a
+insertTree x EmptyTree = newTree x
+insertTree x (Node a l r)
+  | x == a = Node x l r
+  | x < a = Node a (insertTree x l) r
+  | otherwise = Node a l (insertTree x r)
+
+treeToListInOrder:: Tree a -> [a]
+treeToListInOrder EmptyTree = []
+treeToListInOrder Node{v, l, r} = treeToListInOrder l ++ [v] ++ treeToListInOrder r
+
+treeToListPreOrder:: Tree a -> [a]
+treeToListPreOrder EmptyTree = []
+treeToListPreOrder Node{v, l, r} = v : treeToListPreOrder l ++ treeToListPreOrder r
+
+treeToListPostOrder:: Tree a -> [a]
+treeToListPostOrder EmptyTree = []
+treeToListPostOrder Node{v, l, r} = treeToListPostOrder l ++ treeToListPostOrder r ++ [v]
+
+simpleTree :: Tree Integer
+simpleTree = foldr insertTree EmptyTree [8, 6, 1, 3, 2, 7, 5]
+
+-- Typeclaseses
+
+data TrafficLight = Red |Yellow | Green
+
+class ColorEq a where
+    (===) :: a -> a -> Bool
+    (/==) :: a -> a -> Bool
+    x === y = not (x /== y)
+    x /== y = not (x === y )
+
+instance ColorEq TrafficLight where
+    Red === Red = True
+    Green === Green = True
+    Yellow === Yellow = True
+    _ === _ = False
+
+instance Show TrafficLight where
+    show Red = "RED"
+    show Green = "GREEN"
+    show Yellow = "YELLOW"
+
+-- The Functor typeclass
+
+class Functor' f where
+    fmap' :: (a -> b) -> f a -> f b
+
+instance Functor' [] where
+    fmap' = map'
