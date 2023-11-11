@@ -112,3 +112,32 @@ quicksort' (x : xs) =
   let smallest = quicksort' (filter' (<= x) xs)
       biggest = quicksort' (filter' (> x) xs)
    in smallest ++ [x] ++ biggest
+
+-- https://en.wikipedia.org/wiki/Collatz_conjecture
+chain :: (Integral a) => a -> [a]
+chain 1 = [1]
+chain n
+  | even n = n : chain (n `div` 2)
+  | odd n = n : chain (n * 3 + 1)
+
+numLongChain :: Int
+numLongChain = length (filter' isLong (map chain [1 .. 100]))
+  where
+    isLong xs = length xs < 15
+
+elemfoldl :: (Eq a) => a -> [a] -> Bool
+elemfoldl y = foldl (\acc x -> acc || x == y) False
+
+filterfoldl :: (Eq a, Ord a) => (a -> Bool) -> [a] -> [a]
+filterfoldl p = foldl (\acc x -> if p x then acc ++ [x] else acc) []
+
+filterfoldr :: (Eq a, Ord a) => (a -> Bool) -> [a] -> [a]
+filterfoldr p = foldr (\x acc -> if p x then x : acc else acc) []
+
+-- Using $ function application
+quicksort'' :: (Ord a) => [a] -> [a]
+quicksort'' [] = []
+quicksort'' (x : xs) =
+  let smallest = quicksort'' $ filter' (<= x) xs
+      biggest = quicksort'' $ filter' (> x) xs
+   in smallest ++ [x] ++ biggest
