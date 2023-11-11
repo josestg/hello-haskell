@@ -1,3 +1,6 @@
+import Data.List (intersperse, nub, sort)
+import Data.Map qualified as M
+
 doubleMe x = 2 * x
 
 doubleMeStream n = [2 * x | x <- [1 .. n]]
@@ -141,3 +144,34 @@ quicksort'' (x : xs) =
   let smallest = quicksort'' $ filter' (<= x) xs
       biggest = quicksort'' $ filter' (> x) xs
    in smallest ++ [x] ++ biggest
+
+sortedUnique :: (Eq a, Ord a) => [a] -> [a]
+sortedUnique = sort . nub
+
+dotIntersperse :: [Char] -> [Char]
+dotIntersperse = intersperse '.'
+
+phoneBook :: [(String, String)]
+phoneBook =
+  [ ("betty", "555-2938"),
+    ("bonnie", "452-2928"),
+    ("patsy", "493-2928"),
+    ("lucille", "205-2928"),
+    ("wendy", "939-8282"),
+    ("penny", "853-2492")
+  ]
+
+findByKey :: (Eq k) => [(k, v)] -> k -> Maybe v
+findByKey [] key = Nothing
+findByKey ((k, v) : xs) key =
+  if key == k
+    then Just v
+    else findByKey xs key
+
+findByKeyFoldr :: (Eq k) => [(k, v)] -> k -> Maybe v
+findByKeyFoldr xs key = g key xs
+  where
+    g key = foldr (\(k, v) acc -> if key == k then Just v else acc) Nothing
+
+fromList' :: (Ord k) => [(k, v)] -> M.Map k v
+fromList' = foldr (\(k, v) acc -> M.insert k v acc) M.empty
