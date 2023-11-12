@@ -264,3 +264,9 @@ class Functor' f where
 
 instance Functor' [] where
     fmap' = map'
+
+-- IO
+main = do
+  putStrLn "Hello, what's your name?"
+  name <- getLine
+  putStrLn $ "Hey " ++ name ++ ", you rock!"
